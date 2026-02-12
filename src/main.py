@@ -1,6 +1,6 @@
 import argparse, sys
 from pathlib import Path
-from controller.sandbox_controller import SandboxController
+from sandbox_controller import SandboxController
 
 def main():
     """

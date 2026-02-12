@@ -1,5 +1,5 @@
 from pathlib import Path
-from sandbox.execution_engine import ExecutionEngine
+from execution_engine import ExecutionEngine
 
 class SandboxController:
     """
