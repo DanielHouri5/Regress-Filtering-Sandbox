@@ -1,124 +1,41 @@
-<<<<<<< HEAD
-# Regress-Filtering-Sandbox
-=======
----
-# 🛡️ Malware Analysis Sandbox
+# 🛡️ Regress-Filtering-Sandbox
 
-A secure, automated environment for analyzing suspicious Python scripts. The sandbox leverages **Docker isolation** and **System Call Tracing (strace)** to monitor behavior, enforce security policies, and generate detailed risk reports.
----
-
-## 📁 Project Structure
-
-- **`cli/`**: Entry point for the Command Line Interface.
-- **`configs/`**: Configuration files for sandbox limits and image tags.
-- **`controller/`**: Orchestrates the analysis flow.
-- **`orchestrator/`**: Handles Docker container lifecycle and automated image building.
-- **`sandbox/`**: The core engine (Monitoring, System Call Analysis, and Risk Policy).
-- **`shared/samples/`**: **Target directory.** Place your `.py` files here for analysis.
-- **`shared/reports/`**: Destination for generated JSON analysis reports.
-- **`tests/`**: Unit tests for critical components.
+A high-performance, Docker-based **Malware Analysis Sandbox** designed for dynamic file execution in an isolated environment. The system features real-time network sniffing, automated threat intelligence correlation, and active bidirectional traffic interception.
 
 ---
 
-## 🛠️ Installation & Setup
+## 📋 System Overview
 
-### 1. Prerequisites
+The Regress-Filtering-Sandbox provides a secure environment to execute and monitor suspicious Python scripts. By leveraging **Docker-out-of-Docker (DooD)** technology, it spawns isolated runtime containers, monitors their network stack, and cross-references all traffic with live **Threat Intelligence** feeds.
 
-- Python ≥ 3.12
-- Docker Desktop (running)
+If a connection to a known malicious Command & Control (C2) server is detected, the system immediately drops the connection at the kernel level using `iptables`.
 
-### 2. Install Dependencies
+## 🔄 Data Flow & Architecture
 
-Create a virtual environment (optional) and install the requirements:
+1.  **Initialization:** The Controller pulls the latest malicious IP indicators (IOCs) from the **ThreatFox API**.
+2.  **Environment Isolation:** A dedicated "Target Container" is created with a shared network namespace to the monitor.
+3.  **Active Monitoring:** The Network Monitor utilizes **Scapy** for real-time packet inspection on the `eth0` interface.
+4.  **Detection & Response:**
+    -   Outgoing packets are inspected for malicious destination IPs.
+    -   **Automated Mitigation:** Upon detection, the system injects `iptables` rules into the Target Container to block both `INPUT` and `OUTPUT` traffic for that IP.
+5.  **Final Verdict:** After execution, the engine analyzes total packet count, block frequency, and threat severity to provide a final security **Verdict** (CLEAN, SUSPICIOUS, or MALICIOUS).
+
+---
+
+## 🛠️ System Requirements
+
+-   **Docker Desktop:** Installed and running.
+-   **Linux-based Shell:** Git Bash (Windows), WSL2, or native Linux.
+-   **Internet Access:** Required for real-time Threat Intelligence updates.
+
+---
+
+## 🚀 Getting Started
+
+### 1. Build the Images
+
+Run the following commands from the project root:
 
 ```bash
-pip install -r requirements.txt
-
+# Build the Management Controllerdocker build -t sandbox-controller .# Build the Isolated Runtime Environmentdocker build -f Dockerfile.runtime -t sandbox-runtime .
 ```
-
-### 3. Automated Environment Setup
-
-_Note: You **do not** need to build the Docker image manually. The system will automatically detect and build the required environment upon the first execution._
-
----
-
-## ▶️ Running Analysis
-
-### Important: Adding Samples
-
-Before running, you must place the Python scripts you wish to analyze inside the `shared/samples/` directory.
-
-### To analyze a single file:
-
-```bash
-python -m cli.main --sample shared/samples/your_script.py
-
-```
-
-### To analyze ALL files in the samples directory (Batch Run):
-
-Run this command in your terminal to iterate through all Python files:
-
-```bash
-for file in shared/samples/*.py; do python -m cli.main --sample "$file"; done
-
-```
-
----
-
-## 🧪 Running Unit Tests
-
-The sandbox includes a suite of tests to ensure the monitoring and policy engines are accurate. These tests use **Mocks** to simulate Docker activity, so they are fast and safe to run.
-
-### To run ALL tests:
-
-```bash
-python -m pytest tests/ -v
-
-```
-
-### To run a specific test file:
-
-```bash
-# Example: Testing only the Risk Policy engine
-python -m pytest tests/test_policy.py -v
-
-# Example: Testing only the Monitor engine
-python -m pytest tests/test_monitoring.py -v
-
-```
-
----
-
-## 📦 Requirements (`requirements.txt`)
-
-Ensure you have a `requirements.txt` file in the root directory with:
-
-```text
-docker>=7.1.0
-pyyaml>=6.0.1
-pytest>=8.0.0
-
-```
-
----
-
-## 📊 Reports & Verdicts
-
-After execution, a JSON report is generated in `shared/reports/` for each sample. The report includes:
-
-- **Resource Usage:** Peak CPU, RAM, and Thread count.
-- **Behavioral Alerts:** Detected suspicious system calls.
-- **Risk Score:** A weighted score calculated by the `SandboxPolicy`.
-- **Final Verdict:** `CLEAN`, `SUSPICIOUS`, or `MALICIOUS`.
-
----
-
-## ⚡ Quick Troubleshooting
-
-- **Docker Error:** Ensure Docker Desktop is open and running.
-- **ImportError:** Always run commands using `python -m` from the project's root directory.
-- **Log Clearing:** The monitor automatically clears `trace.log` before each run to avoid data contamination.
-
----
->>>>>>> 8d10e5b48b4d7bfd101b21c0cda5cdf12e2fde51

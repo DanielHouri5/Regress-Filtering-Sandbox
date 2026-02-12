@@ -1,33 +1,32 @@
+# src/sandbox_controller.py
 from pathlib import Path
-from execution_engine import ExecutionEngine
+from src.execution_engine import ExecutionEngine
 
 class SandboxController:
     def run_sample(self, sample_path: Path):
-        if not self._is_valid_sample(sample_path):
+        # המרה לנתיב אבסולוטי בתוך הקונטיינר
+        full_path = Path("/sandbox") / sample_path
+        
+        if not self._is_valid_sample(full_path):
             return False
         
-        print("-"*100)
-        print(f"\n[*] Regress filtering started for: {sample_path.name}\n")
+        print("-" * 100)
+        print(f"\n[*] Regress filtering started for: {full_path.name}\n")
         
         try:
-            with ExecutionEngine(sample_path) as engine:
+            with ExecutionEngine(full_path) as engine:
+                # הרצה ל-30 שניות של ניטור
                 engine.run_analysis(runtime_sec=30)
-
             return True
-        
         except Exception as e:
             print(f"[!] Regress filtering failed: {e}")
             return False
 
     def _is_valid_sample(self, path: Path):
-        if not path.exists() or not path.is_file():
-            print(f"[!] File not found or invalid: {path}")
+        if not path.exists():
+            print(f"[!] File not found: {path}")
             return False
         if path.suffix.lower() != '.py':
-            print(f"[!] Invalid file type: {path.suffix}. Only .py files are supported.")
-            return False
-        if path.stat().st_size == 0:
-            print(f"[!] File is empty: {path}")
+            print(f"[!] Invalid file type: {path.suffix}")
             return False
         return True
-    

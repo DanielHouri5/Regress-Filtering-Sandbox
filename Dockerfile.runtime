@@ -1,0 +1,9 @@
+# Dockerfile.runtime
+FROM python:3.12-slim
+
+# התקנת iptables כדי שה-Controller יוכל לחסום תעבורה בתוך הקונטיינר הזה
+RUN apt-get update && apt-get install -y iptables && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /sandbox
+# הקונטיינר הזה לא צריך להעתיק קבצים, הוא מקבל אותם ב-Volume
+CMD ["python3"]

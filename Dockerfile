@@ -1,18 +1,22 @@
-# Use a lightweight Python base image to minimize attack surface and image size
+# Dockerfile מעודכן
 FROM python:3.12-slim
 
-
-RUN apt-get update && apt-get install -y \
-    iptables \
-    tcpdump \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     libpcap-dev \
     gcc \
+    docker.io \
+    iptables \
     && rm -rf /var/lib/apt/lists/*
 
-# Set the working directory inside the container
 WORKDIR /sandbox
 
-RUN pip install --no-cache-dir scapy
+# הגדרת PYTHONPATH כך שפייתון תכיר בתיקיית src כחבילה
+ENV PYTHONPATH=/sandbox
 
-# Default command starts the Python interpreter
-CMD ["python3"]
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+# הרצה של main דרך מודול (שימוש ב-m) שומר על הקשר ה-Packages
+ENTRYPOINT ["python3", "-m", "src.main"]

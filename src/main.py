@@ -1,6 +1,6 @@
 import argparse, sys
 from pathlib import Path
-from sandbox_controller import SandboxController
+from src.sandbox_controller import SandboxController
 
 def main():
     parser = argparse.ArgumentParser(description="Simple Malware Sandbox")
