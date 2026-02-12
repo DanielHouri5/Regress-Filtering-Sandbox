@@ -35,7 +35,6 @@ class ExecutionEngine:
         monitor_thread.daemon = True
         monitor_thread.start()
         
-        # זמן קצר להתארגנות המוניטור לפני הרצת ה"וירוס"
         time.sleep(2) 
 
         print(f"[*] Executing sample: {self.sample_path.name}")
@@ -48,10 +47,8 @@ class ExecutionEngine:
         except Exception as e:
             print(f"[!] Execution error: {e}")
 
-        # מחכים לסיום המוניטור
         monitor_thread.join(timeout=runtime_sec)
         
-        # הפקת והדפסת הסיכום הסופי
         self._display_final_report()
 
     def _display_final_report(self):

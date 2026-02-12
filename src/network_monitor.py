@@ -4,7 +4,6 @@ from src.security_utils import ThreatIntelUtility
 from datetime import datetime
 from colorama import Fore, Style, init
 
-# אתחול צבעים לטרמינל
 init(autoreset=True)
 
 class NetworkMonitor:
@@ -16,7 +15,6 @@ class NetworkMonitor:
         self.intel_utility.refresh_data()
         self.container = container
         
-        # מונים לסיכום סופי
         self.blocked_count = 0
         self.total_packets = 0
         self.unique_blocked_ips = set()
@@ -42,7 +40,6 @@ class NetworkMonitor:
         dest_ip = packet[IP].dst
         src_ip = packet[IP].src
         
-        # סינון רעשים של דוקר
         if dest_ip.startswith("172.") and src_ip.startswith("172."): return
 
         timestamp = datetime.now().strftime('%H:%M:%S')
@@ -63,22 +60,18 @@ class NetworkMonitor:
             status = "UNAUTHORIZED"
             color = Fore.YELLOW
 
-        # הדפסה למסך
         print(f"{color}{timestamp:<10} | {src_ip:<15} | {dest_ip:<15} | {status}")
 
-        # כתיבה ללוג
         with open(self.log_path, "a", encoding="utf-8") as f:
             f.write(f"[{timestamp}] {src_ip} -> {dest_ip} | {status}\n")
             f.flush()
 
     def _block_ip(self, ip_address):
-        """חסימה דו-כיוונית הרמטית"""
         if self.container and ip_address not in self.allowed_ips:
             self.container.exec_run(f"iptables -A OUTPUT -d {ip_address} -j DROP")
             self.container.exec_run(f"iptables -A INPUT -s {ip_address} -j DROP")
 
     def get_analysis_summary(self):
-        """מחשב את הדירוג הסופי על סמך הממצאים"""
         verdict = "CLEAN"
         color = Fore.GREEN
         recommendation = "File appears safe for execution."

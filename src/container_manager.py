@@ -14,7 +14,6 @@ class ContainerManager:
         if not self.host_path:
             raise Exception("Environment variable 'HOST_SHARED_PATH' is missing.")
 
-        # מיפוי נתיבים מהמחשב המארח לתוך ה-Target
         volumes = {
             f"{self.host_path}/samples": {"bind": "/sandbox/shared/samples", "mode": "ro"},
             f"{self.host_path}/reports": {"bind": "/sandbox/shared/reports", "mode": "rw"}
@@ -24,7 +23,7 @@ class ContainerManager:
             image=self.image_name,
             command=["tail", "-f", "/dev/null"],
             volumes=volumes,
-            network_mode=f"container:{self.controller_id}", # שיתוף רשת
+            network_mode=f"container:{self.controller_id}", 
             privileged=True,
             detach=True,
             tty=True,

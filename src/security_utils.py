@@ -18,7 +18,7 @@ class ThreatIntelUtility:
             new_ips = set()
             for row in reader:
                 if not row or row[0].startswith('#'): continue
-                ip = row[2].split(':')[0].replace('"', '').strip() # חילוץ ה-IP מתוך ה-IOC
+                ip = row[2].split(':')[0].replace('"', '').strip() 
                 new_ips.add(ip)
             
             self.blacklisted_ips = new_ips

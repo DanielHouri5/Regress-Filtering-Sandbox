@@ -25,10 +25,5 @@ Thumbs.db
 # Logs / Reports
 # ======================
 *.log
-shared/
 
-# ======================
-# Sandbox Artifacts
-# ======================
-samples/output/
-sandbox/tmp/
+

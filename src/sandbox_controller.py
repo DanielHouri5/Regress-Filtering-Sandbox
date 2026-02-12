@@ -4,7 +4,6 @@ from src.execution_engine import ExecutionEngine
 
 class SandboxController:
     def run_sample(self, sample_path: Path):
-        # המרה לנתיב אבסולוטי בתוך הקונטיינר
         full_path = Path("/sandbox") / sample_path
         
         if not self._is_valid_sample(full_path):
@@ -15,7 +14,6 @@ class SandboxController:
         
         try:
             with ExecutionEngine(full_path) as engine:
-                # הרצה ל-30 שניות של ניטור
                 engine.run_analysis(runtime_sec=30)
             return True
         except Exception as e:

@@ -37,23 +37,17 @@ If a connection to a known malicious Command & Control (C2) server is detected, 
 Run the following commands from the project root:
 
 ```bash
-# Build the Management Controller
-docker build -t sandbox-controller .
-
-# Build the Isolated Runtime Environment
-docker build -f Dockerfile.runtime -t sandbox-runtime .
+# Build the Management Controllerdocker build -t sandbox-controller .# Build the Isolated Runtime Environmentdocker build -f Dockerfile.runtime -t sandbox-runtime .
 ```
+
 ### 2. Execute a Sample Analysis
 
 Use this generic command to run any Python sample. It automatically maps your local paths and initiates the monitoring sequence:
 
 ```bash
-MSYS_NO_PATHCONV=1 docker run -it --privileged \
-  -v //var/run/docker.sock:/var/run/docker.sock \
-  -v "$(pwd)/shared:/sandbox/shared" \
-  -e HOST_SHARED_PATH="$(pwd)/shared" \
-  sandbox-controller --sample shared/samples/test_connection.py
+MSYS_NO_PATHCONV=1 docker run -it --privileged   -v //var/run/docker.sock:/var/run/docker.sock   -v "$(pwd)/shared:/sandbox/shared"   -e HOST_SHARED_PATH="$(pwd)/shared"   sandbox-controller --sample shared/samples/test_connection.py
 ```
+
 📊 Analysis Outputs
 
 Live Console: A color-coded table displaying real-time traffic status (ALLOWED, UNAUTHORIZED, or BLOCKED).
