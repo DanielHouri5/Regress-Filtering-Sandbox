@@ -6,7 +6,6 @@ import threading
 from scapy.all import sniff, TCP, IP
 from security_utils import ThreatIntelUtility  
 from datetime import datetime
-
 local_time = datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
 
 class NetworkMonitor:
@@ -35,6 +34,9 @@ class NetworkMonitor:
         
         dest_ip = packet[IP].dst
         src_ip = packet[IP].src
+
+        if src_ip == "192.168.1.132": 
+            return
         
         log_entry = f"[SYN] {src_ip} -> {dest_ip}"
         
@@ -44,16 +46,25 @@ class NetworkMonitor:
             self._block_ip(dest_ip)
             status = "BLOCKED (ThreatFox Intelligence)"
         else:
-            status = "UNAUTHORIZED (Not in Allowed List)"
-            self._block_ip(dest_ip) 
+            status = "UNAUTHORIZED (Not in lists)"
 
+        log_entry = f"[SYN] {src_ip} -> {dest_ip} | Status: {status}"
         with open(self.log_path, "a") as f:
-            f.write(f"{log_entry} | Status: {status}\n")
+            f.write(f"{log_entry}\n")
         print(f"[*] Connection attempt to {dest_ip}: {status}")
 
-    def _block_ip(self, ip):
-        os.system(f"iptables -A OUTPUT -d {ip} -j DROP")
+    def _block_ip(self, ip_address):
+        result = self.container.exec_run(f"iptables -A OUTPUT -d {ip_address} -j DROP")
+        print(f"[*] Sample Output: {result.output.decode()}")
+        if result.exit_code == 0:
+            print(f"[!] Successfully blocked {ip_address} INSIDE the container.")
+        else:
+            print(f"[!] Failed to block {ip_address}. Error: {result.output.decode()}")
 
     def cleanup_firewall(self):
-        print("[*] Cleaning up iptables rules...")
-        os.system("iptables -F")
+        if self.container:
+            try:
+                self.container.exec_run("iptables -F")
+                print("[*] Iptables rules cleared inside container.")
+            except:
+                pass
