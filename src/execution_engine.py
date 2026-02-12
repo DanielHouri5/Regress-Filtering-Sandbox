@@ -1,8 +1,7 @@
 import threading, time
 from pathlib import Path
-
-from orchestrator.container_manager import ContainerManager
-from .monitoring import Monitor
+from container_manager import ContainerManager
+from network_monitor import NetworkMonitor
 
 class ExecutionEngine:
     """
@@ -20,6 +19,7 @@ class ExecutionEngine:
         """
         self.sample_path = Path(sample_path)
         self.container_mgr = ContainerManager()
+        self.monitor = NetworkMonitor()
         self.container = None
 
     def __enter__(self):
@@ -45,6 +45,7 @@ class ExecutionEngine:
                 self.container.remove()
             except Exception as e:
                 print(f"[!] Cleanup warning: {e}")
+        self.monitor.cleanup_firewall()
 
     def run_analysis(self, runtime_sec):
         """
@@ -58,14 +59,7 @@ class ExecutionEngine:
         """
         print(f"[*] Starting monitoring thread for {runtime_sec}s...")
 
-        # Initialize the Monitor with the active container reference
-        monitor = Monitor(self.container)
-
-        # Create a thread to monitor system calls and resources concurrently with the sample execution.
-        monitor_thread = threading.Thread(
-            target=monitor.start_monitoring,
-            kwargs={"runtime_sec": runtime_sec}
-        )
+        monitor_thread = threading.Thread(target=self.monitor.start_monitoring, args=(runtime_sec,))
         monitor_thread.start()
         
         # Brief pause to ensure the monitor is fully initialized before execution
@@ -76,10 +70,5 @@ class ExecutionEngine:
         self.container_mgr.exec_sample(self.container, self.sample_path.name)
 
         # Wait for the monitoring thread to complete its duration
-        monitor_thread.join()
-        
-        # --- Post-Execution Analysis ---
-        
-        stats = monitor.stats
-        print(f"[*] Analysis complete. System calls captured: {len(stats['syscalls'])}")
+        monitor_thread.join()        
 
